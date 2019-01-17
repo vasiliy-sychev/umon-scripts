@@ -1,9 +1,13 @@
 #!/bin/bash
 # ---------------------------------------------------------------
-# v1.0
+# v1.0a
 # Written by Vasiliy Sychev (zero.dn.ua [at] gmail.com)
 # ---------------------------------------------------------------
 # Changelog:
+#
+# v1.0a (2019.01.17)
+# - Added color for results
+# - ps now called only if ROOT_PREFIX is not specified
 #
 # v1.0 (2019.01.08)
 # - Initial release. Just works.
@@ -19,6 +23,13 @@ PORT_STR="/dev/tnt1"
 
 # MD5 hash for current version of elmiko_simulator application
 CORRECT_MD5="769bb2685b0784b72101e53bad746574"
+
+# ---------------------------------------------------------------
+
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+NO_COLOR="\033[0m"
 
 # ---------------------------------------------------------------
 
@@ -44,9 +55,9 @@ ERROR=0
 echo -n "Checking for libelmcfm.so................."
 
 if [ -e ${ROOT_PREFIX}/${LIB_ELMCFM} ]; then
-    echo "OK"
+    echo -e "${GREEN}OK${NO_COLOR}"
 else
-    echo "NOT FOUND"
+    echo -e "${RED}NOT FOUND${NO_COLOR}"
     ERROR=1
 fi
 
@@ -55,9 +66,9 @@ fi
 echo -n "Checking for libftd2xx.so................."
 
 if [ -e ${ROOT_PREFIX}/${LIB_FTD2XX} ]; then
-    echo "OK"
+    echo -e "${GREEN}OK${NO_COLOR}"
 else
-    echo "NOT FOUND"
+    echo -e "${RED}NOT FOUND${NO_COLOR}"
     ERROR=1
 fi
 
@@ -67,9 +78,9 @@ echo -n "Checking for tty0tty in /etc/modules......"
 grep tty0tty /etc/modules > /dev/null
 
 if [ $? -eq 0 ]; then
-    echo "OK"
+    echo -e "${GREEN}OK${NO_COLOR}"
 else
-    echo "NOT ENABLED"
+    echo -e "${RED}NOT ENABLED${NO_COLOR}"
     ERROR=1
 fi
 
@@ -81,13 +92,13 @@ if [ "$ROOT_PREFIX" = "" ]; then
     lsmod | grep tty0tty > /dev/null
 
     if [ $? -eq 0 ]; then
-        echo "OK"
+        echo -e "${GREEN}OK${NO_COLOR}"
     else
-        echo "NOT LOADED"
+        echo -e "${RED}NOT LOADED${NO_COLOR}"
         ERROR=1
     fi
 else
-    echo "SKIPPED"
+    echo -e "${YELLOW}SKIPPED${NO_COLOR}"
 fi
 
 # ---------------------------------------------------------------
@@ -97,9 +108,9 @@ echo -n "Checking for port definition in INI file.."
 grep $PORT_STR ${ROOT_PREFIX}/${INI_PATH}/mon650.ini.template > /dev/null
 
 if [ $? -eq 0 ]; then
-    echo "OK"
+    echo -e "${GREEN}OK${NO_COLOR}"
 else
-    echo "NOT FOUND"
+    echo -e "${RED}NOT FOUND${NO_COLOR}"
     ERROR=1
 fi
 
@@ -108,69 +119,69 @@ fi
 echo -n "Checking for elmiko_simulator binary......"
 
 if [ -e ${ROOT_PREFIX}/${APP_PATH}/elmiko_simulator ]; then
-    echo -n -e "OK\nChecking elmiko_simulator checksum........"
+    echo -n -e "${GREEN}OK${NO_COLOR}\nChecking elmiko_simulator checksum........"
     MD5SUM_OUTPUT=$(md5sum ${ROOT_PREFIX}/${APP_PATH}/elmiko_simulator)
 
     if [ $? -eq 0 ]; then
         MD5SUM=$(echo $MD5SUM_OUTPUT | cut --delimiter=" " --fields=1)
         
         if [ ${MD5SUM} = ${CORRECT_MD5} ]; then
-            echo "OK"
+            echo -e "${GREEN}OK${NO_COLOR}"
         else
-            echo "MISMATCH"
+            echo -e "${RED}MISMATCH${NO_COLOR}"
             ERROR=1
         fi
     else
-        echo "ERROR RUNNING MD5SUM"
+        echo -e "${RED}ERROR RUNNING MD5SUM${NO_COLOR}"
         ERROR=1
     fi
 else
-    echo "NOT FOUND"
+    echo -e "${RED}NOT FOUND${NO_COLOR}"
     ERROR=1
 fi
 
 # ---------------------------------------------------------------
 
 echo -n "Checking if start_elmiko.sh is running...."
-ps -f -U $USER_NAME > $TMP_FILE
 
 if [ "$ROOT_PREFIX" = "" ]; then
+    ps -f -U $USER_NAME > $TMP_FILE
     grep start_elmiko.sh $TMP_FILE > /dev/null
 
     if [ $? -eq 0 ]; then
-        echo "OK"
+        echo -e "${GREEN}OK${NO_COLOR}"
     else
-        echo "NOT RUNNING"
+        echo -e "${RED}NOT RUNNING${NO_COLOR}"
         ERROR=1
     fi
 else
-    echo "SKIPPED"
+    echo -e "${YELLOW}SKIPPED${NO_COLOR}"
 fi
 
 # ---------------------------------------------------------------
 
 echo -n "Checking if elmiko_simulator is running..."
-ps -f -U $USER_NAME > $TMP_FILE
 
 if [ "$ROOT_PREFIX" = "" ]; then
+    ps -f -U $USER_NAME > $TMP_FILE
     grep elmiko_simulator $TMP_FILE > /dev/null
 
     if [ $? -eq 0 ]; then
-        echo "OK"
+        echo -e "${GREEN}OK${NO_COLOR}"
     else
-        echo "NOT RUNNING"
+        echo -e "${RED}NOT RUNNING${NO_COLOR}"
         ERROR=1
     fi
 else
-    echo "SKIPPED"
+    echo -e "${YELLOW}SKIPPED${NO_COLOR}"
 fi
 
 # ---------------------------------------------------------------
 
 if [ $ERROR -eq 0 ]; then
-    echo -e "\nResult: no problems detected"
+    echo -e "\nResult: ${GREEN}no problems detected{$NO_COLOR}"
     exit 0
 fi
 
-echo -e "\nResult: problems was detected. aEEG may not work on this device!"
+echo -e "\nResult: ${RED}problems was detected. aEEG may not work on this device!${NO_COLOR}"
 exit 1
