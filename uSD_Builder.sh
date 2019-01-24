@@ -1,9 +1,21 @@
 #!/bin/bash
 # ---------------------------------------------------------------
-# v1.2b
+# v1.2c
 # Written by Vasiliy Sychev (zero.dn.ua [at] gmail.com)
 # ---------------------------------------------------------------
 # Changelog:
+#
+# v1.2d (2018.01.24)
+# - Changed file name generation:
+#   "uSD_xx_" -> "mon7xx_" where xx - display size
+#   "_Solo512_" -> "_solo_"
+#   "_Dual512_" -> "_dual_"
+#   "_Quad1G_" -> "_quad1g_"
+#   "_Quad2G_" -> "_quad2g_"
+#
+# v1.2c (2018.01.22)
+# - Added copying of copy-elmiko-files.sh
+# - Added copying of elmico dir
 #
 # v1.2b (2018.11.22)
 # - Added optional function for replacing mon650.xxx binaries in generated image (can be actiavted
@@ -36,7 +48,7 @@
 # - Initial release. Just works.
 #
 
-SCRIPT_VERSION="1.2b"
+SCRIPT_VERSION="1.2d"
 
 # Default values
 DEFAULT_BOOT_FS_FILENAME="fs_deb86_boot.tar.gz"
@@ -142,25 +154,25 @@ case $CPU_MODEL in
 	solo_512)
 		echo "Single core with 512 MBytes of RAM selected"
 		UBOOT_BIN_FN="u-boot-mon715-solo.imx"
-		CPU_SHORT_NAME="Solo512"
+		CPU_SHORT_NAME="solo"
 		XORG_CONF="solo"
 		;;
 	dual_512)
 		echo "Dual core (DualLite) with 512 MBytes of RAM selected"
 		UBOOT_BIN_FN="u-boot-mon715-dual.imx"
-		CPU_SHORT_NAME="Dual512"
+		CPU_SHORT_NAME="dual"
 		XORG_CONF="dl"
 		;;
 	quad_1G)
 		echo "Quad core with 1024 MBytes of RAM selected"
 		UBOOT_BIN_FN="u-boot-mon715-quad1G.imx"
-		CPU_SHORT_NAME="Quad1G"
+		CPU_SHORT_NAME="quad1g"
 		XORG_CONF="quad"
 		;;
 	quad_2G)
 		echo "Quad core with 2048 MBytes of RAM selected"
 		UBOOT_BIN_FN="u-boot-mon715-quad2G.imx"
-		CPU_SHORT_NAME="Quad2G"
+		CPU_SHORT_NAME="quad2g"
 		XORG_CONF="quad"
 		;;
 	*)
@@ -237,9 +249,9 @@ fi
 
 DATETIME=$(date +%Y%m%d_%H%M)
 
-IMG_FILE="uSD_${MON_MODEL}_${CPU_SHORT_NAME}_${DATETIME}.img"
-LOG_FILE="uSD_${MON_MODEL}_${CPU_SHORT_NAME}_${DATETIME}.log"
-ZIP_FILE="uSD_${MON_MODEL}_${CPU_SHORT_NAME}_${DATETIME}.zip"
+IMG_FILE="mon7${MON_MODEL}_${CPU_SHORT_NAME}_${DATETIME}.img"
+LOG_FILE="mon7${MON_MODEL}_${CPU_SHORT_NAME}_${DATETIME}.log"
+ZIP_FILE="mon7${MON_MODEL}_${CPU_SHORT_NAME}_${DATETIME}.zip"
 
 LOG_FULL_FN=$USD_BUILDER_OUT_DIR/$LOG_FILE
 
@@ -491,6 +503,12 @@ cp -p -v $MON700_FS_SRC_PATH/copy*kernel.sh            $SD_P2_ROOT/home/debian/m
 
 echo "Copying \"apps and scripts copy script\"..."
 cp -p -v $MON700_FS_SRC_PATH/copy-app-mon715-files.sh  $SD_P2_ROOT/home/debian/mon71x/ >> $LOG_FULL_FN
+
+echo "Copying \"copy-elmiko-files.sh\"..."
+cp -p -v $MON700_FS_SRC_PATH/copy-elmiko-files.sh  $SD_P2_ROOT/home/debian/mon71x/ >> $LOG_FULL_FN
+
+echo "Copying \"elmico\" directory..."
+cp -R -p -v $MON700_FS_SRC_PATH/elmico $SD_P2_ROOT/home/debian/mon71x/ >> $LOG_FULL_FN
 
 echo "Copying openbox autostart..."
 cp -p -v $MON700_FS_SRC_PATH/samd_wdt/autostart        $SD_P2_ROOT/home/debian/.config/openbox/ >> $LOG_FULL_FN
