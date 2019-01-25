@@ -1,9 +1,12 @@
 #!/bin/bash
 # ---------------------------------------------------------------
-# v1.0a
+# v1.0b
 # Written by Vasiliy Sychev (zero.dn.ua [at] gmail.com)
 # ---------------------------------------------------------------
 # Changelog:
+#
+# v1.0b (2019.01.25)
+# - Fixed result string when ERROR == 0 (removed {} brackets from output)
 #
 # v1.0a (2019.01.17)
 # - Added color for results
@@ -179,7 +182,7 @@ fi
 # ---------------------------------------------------------------
 
 if [ $ERROR -eq 0 ]; then
-    echo -e "\nResult: ${GREEN}no problems detected{$NO_COLOR}"
+    echo -e "\nResult: ${GREEN}no problems detected${NO_COLOR}"
     exit 0
 fi
 
